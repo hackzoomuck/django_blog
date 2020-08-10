@@ -1,0 +1,55 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<script>
+    function post_remove() {
+        //{% url 'post_remove' pk=post.pk %}
+        /**/
+        var result = confirm('Post를 삭제하시겠습니까?')
+        if(result) {
+            var remove_url = "{% url 'post_remove' pk=post.pk %}"
+            document.location.href = remove_url
+        }//if
+    }//post_remove
+</script>
+        <div class="post">
+            {% if post.published_date %}
+                <div class="date">
+                    {{post.published_date}}
+                </div>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </a>
+                <a class="btn btn-default" href="#" onclick="post_remove()">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+            {% endif %}
+        <h2>{{post.title|title}}</h2>
+        </div>
+<hr>
+<a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">Add Comment</a>
+{% for comment in post.comments.all %}
+    <div class="comment">
+        <div class="date">
+            {{comment.created_date}}
+            {% if not comment.approved_comment %} <!--승인처리가 된 것이 아닐때에만 승인과 삭제를 할 수 있게한다.-->
+                <a class="btn btn-default"
+                   href="{% url 'comment_remove' pk=comment.pk %}">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </a>
+                <a class="btn btn-default"
+                   href="{% url 'comment_approve' pk=comment.pk %}">
+                    <span class="glyphicon glyphicon-ok"></span>
+                </a>
+            {% endif %}
+        </div>
+        <strong>{{comment.author}}</strong>
+        <p>{{comment.text|linebreaksbr}}</p>
+    </div>
+{% empty %}
+    <p>No comments here yet: (</p>
+{% endfor %}
+{% endblock %}
